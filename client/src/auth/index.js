@@ -12,7 +12,7 @@ export const AuthActionType = {
     LOGGED_IN: "LOGGED_IN",
     LOGGED_OUT: "LOGGED_OUT",
     ERROR_MODAL: "ERROR_MODAL",
-    CLOSE_MODAL: "CLOSE_MODAL"
+    CLOSE_MODAL: "CLOSE_MODAL",
 }
 
 function AuthContextProvider(props) {
@@ -147,6 +147,7 @@ function AuthContextProvider(props) {
             })
         }
     }
+    
     auth.closeModal = function() {
         authReducer({
             type: AuthActionType.CLOSE_MODAL,
