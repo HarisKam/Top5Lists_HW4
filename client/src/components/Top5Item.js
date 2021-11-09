@@ -126,6 +126,7 @@ function Top5Item(props) {
         <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
     </ListItem>
 if(editActive) {
+    
 component = 
 <TextField
     margin="normal"
