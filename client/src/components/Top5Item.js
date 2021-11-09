@@ -15,6 +15,7 @@ function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [draggedTo, setDraggedTo] = useState(0);
+    const [text, editText] = useState("");
 
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
@@ -47,6 +48,40 @@ function Top5Item(props) {
         // UPDATE THE LIST
         store.addMoveItemTransaction(sourceId, targetId);
     }
+    
+    function handleEdit(event) {
+        event.stopPropogation();
+        changeEdit();
+    }
+
+    function changeEdit() {
+        let rog = !editActive;
+        if (rog) {
+            store.setIsItemEditActive();
+        }
+        setEditActive(rog);
+    }
+
+    function handleKeyPress(event) {
+        if (event.code === "Enter") {
+            store.addUpdateItemTransaction(event.target.id.substring("item-".length), event.target.value);
+            changeEdit();
+        }
+    }
+    
+    function handleChangeText(event) {
+        editText(event.target.value);
+    }
+
+    function handleBlur(event) {
+        if(event.target.value === "" || event.target.value === props.text){
+            changeEdit();
+        }
+        else {
+            store.addUpdateItemTransaction(event.target.id.substring("item-".length), event.target.value);
+            changeEdit();
+        }
+    }
 
     let { index } = props;
 
@@ -55,7 +90,7 @@ function Top5Item(props) {
         itemClass = "top5-item-dragged-to";
     }
 
-    return (
+    return ((!editActive)?
             <ListItem
                 id={'item-' + (index+1)}
                 key={props.key}
@@ -83,12 +118,28 @@ function Top5Item(props) {
                 }}
             >
             <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit'>
+                <IconButton aria-label='edit' onClick={handleEdit}>
                     <EditIcon style={{fontSize:'48pt'}}  />
                 </IconButton>
             </Box>
                 <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
-            </ListItem>
+            </ListItem> :
+
+            <TextField
+
+            fullWidth
+            id = {"item" + (index)}
+            className='top5-item'
+            type='text'
+            onKeyPress={handleKeyPress}
+            onChange={handleChangeText}
+            onBlur = {handleBlur}
+            defaultValue={props.text}
+            inputProps={{style: {fontSize: 48}}}
+            InputLabelProps={{style: {fontSize: 24}}}
+            autoFocus
+            
+            />
     )
 }
 

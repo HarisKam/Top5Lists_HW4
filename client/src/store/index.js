@@ -58,7 +58,7 @@ function GlobalStoreContextProvider(props) {
             case GlobalStoreActionType.CHANGE_LIST_NAME: {
                 return setStore({
                     idNamePairs: payload.idNamePairs,
-                    currentList: payload.top5List,
+                    currentList: null,
                     newListCounter: store.newListCounter,
                     isListNameEditActive: false,
                     isItemEditActive: false,
@@ -175,6 +175,7 @@ function GlobalStoreContextProvider(props) {
                         response = await api.getTop5ListPairs();
                         if (response.data.success) {
                             let pairsArray = response.data.idNamePairs;
+                            pairsArray = await store.getUsersPairs(pairsArray);
                             storeReducer({
                                 type: GlobalStoreActionType.CHANGE_LIST_NAME,
                                 payload: {
@@ -189,6 +190,17 @@ function GlobalStoreContextProvider(props) {
             }
             updateList(top5List);
         }
+    }
+
+    store.getUsersPairs = async function(arr) {
+        let userLists = [];
+        for(let n = 0; n < arr.length; n++) {
+            const response = await api.getTop5ListById(arr[n]._id);
+            if(response.data.top5List.ownerEmail === auth.user.email) {
+                userLists.push(response.data.top5List);
+            }
+        }
+        return userLists;
     }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
@@ -230,17 +242,16 @@ function GlobalStoreContextProvider(props) {
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = async function () {
-        const response = await api.getTop5ListPairs();
+        const response = await api.getTop5ListPairs({"email": auth.user.email});
         if (response.data.success) {
             let pairsArray = response.data.idNamePairs;
+            pairsArray = await store.getUsersPairs(pairsArray);
             storeReducer({
                 type: GlobalStoreActionType.LOAD_ID_NAME_PAIRS,
                 payload: pairsArray
             });
         }
-        else {
-            console.log("API FAILED TO GET THE LIST PAIRS");
-        }
+
     }
 
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
