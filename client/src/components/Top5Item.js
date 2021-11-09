@@ -15,7 +15,7 @@ function Top5Item(props) {
     const { store } = useContext(GlobalStoreContext);
     const [editActive, setEditActive] = useState(false);
     const [draggedTo, setDraggedTo] = useState(0);
-    const [text, editText] = useState("");
+    const [text, setText] = useState("");
 
     function handleDragStart(event, targetId) {
         event.dataTransfer.setData("item", targetId);
@@ -50,7 +50,7 @@ function Top5Item(props) {
     }
     
     function handleEdit(event) {
-        event.stopPropogation();
+        event.stopPropagation();
         changeEdit();
     }
 
@@ -64,13 +64,14 @@ function Top5Item(props) {
 
     function handleKeyPress(event) {
         if (event.code === "Enter") {
-            store.addUpdateItemTransaction(event.target.id.substring("item-".length), event.target.value);
+            let itemID = event.target.id.substring("item-".length)
+            store.addUpdateItemTransaction(itemID, event.target.value);
             changeEdit();
         }
     }
     
     function handleChangeText(event) {
-        editText(event.target.value);
+        setText(event.target.value);
     }
 
     function handleBlur(event) {
@@ -90,57 +91,60 @@ function Top5Item(props) {
         itemClass = "top5-item-dragged-to";
     }
 
-    return ((!editActive)?
-            <ListItem
-                id={'item-' + (index+1)}
-                key={props.key}
-                className={itemClass}
-                onDragStart={(event) => {
-                    handleDragStart(event, (index+1))
-                }}
-                onDragOver={(event) => {
-                    handleDragOver(event, (index+1))
-                }}
-                onDragEnter={(event) => {
-                    handleDragEnter(event, (index+1))
-                }}
-                onDragLeave={(event) => {
-                    handleDragLeave(event, (index+1))
-                }}
-                onDrop={(event) => {
-                    handleDrop(event, (index+1))
-                }}
-                draggable="true"
-                sx={{ display: 'flex', p: 1 }}
-                style={{
-                    fontSize: '48pt',
-                    width: '100%'
-                }}
-            >
-            <Box sx={{ p: 1 }}>
-                <IconButton aria-label='edit' onClick={handleEdit}>
-                    <EditIcon style={{fontSize:'48pt'}}  />
-                </IconButton>
-            </Box>
-                <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
-            </ListItem> :
-
-            <TextField
-
-            fullWidth
-            id = {"item" + (index)}
-            className='top5-item'
-            type='text'
-            onKeyPress={handleKeyPress}
-            onChange={handleChangeText}
-            onBlur = {handleBlur}
-            defaultValue={props.text}
-            inputProps={{style: {fontSize: 48}}}
-            InputLabelProps={{style: {fontSize: 24}}}
-            autoFocus
-            
-            />
-    )
+    let component = 
+    <ListItem
+        id={'item-' + (index+1)}
+        key={props.key}
+        className={itemClass}
+        onDragStart={(event) => {
+            handleDragStart(event, (index+1))
+        }}
+        onDragOver={(event) => {
+            handleDragOver(event, (index+1))
+        }}
+        onDragEnter={(event) => {
+            handleDragEnter(event, (index+1))
+        }}
+        onDragLeave={(event) => {
+            handleDragLeave(event, (index+1))
+        }}
+        onDrop={(event) => {
+            handleDrop(event, (index+1))
+        }}
+        draggable="true"
+        sx={{ display: 'flex', p: 1 }}
+        style={{
+            fontSize: '48pt',
+            width: '100%'
+        }}
+    >
+    <Box sx={{ p: 1 }}>
+        <IconButton aria-label='edit' onClick = {handleEdit}>
+            <EditIcon style={{fontSize:'48pt'}}  />
+        </IconButton>
+    </Box>
+        <Box sx={{ p: 1, flexGrow: 1 }}>{props.text}</Box>
+    </ListItem>
+if(editActive) {
+component = 
+<TextField
+    margin="normal"
+    required
+    fullWidth
+    id={'item-' + (index)}
+    label="Top 5 Item"
+    name="name"
+    className='top5-item'
+    onKeyPress={handleKeyPress}
+    onChange={handleChangeText}
+    onBlur = {handleBlur}
+    defaultValue={props.text}
+    inputProps={{style: {fontSize: 48}}}
+    InputLabelProps={{style: {fontSize: 24}}}
+    autoFocus
+/>
+}
+return (component);
 }
 
 export default Top5Item;
