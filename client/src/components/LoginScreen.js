@@ -10,8 +10,8 @@ import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { GlobalStoreContext } from '../store'
-
+import { GlobalStoreContext } from '../store';
+import ErrorModal from './ErrorModal';
 import Paper from '@mui/material/Paper';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
@@ -33,6 +33,7 @@ export default function LoginScreen() {
     return (
         <ThemeProvider theme={theme}>
       <Grid container component="main" sx={{ height: '100vh' }}>
+        <ErrorModal />
         <CssBaseline />
         <Grid
           item

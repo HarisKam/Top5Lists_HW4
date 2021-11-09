@@ -10,13 +10,16 @@ export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     REGISTER_USER: "REGISTER_USER",
     LOGGED_IN: "LOGGED_IN",
-    LOGGED_OUT: "LOGGED_OUT"
+    LOGGED_OUT: "LOGGED_OUT",
+    ERROR_MODAL: "ERROR_MODAL",
+    CLOSE_MODAL: "CLOSE_MODAL"
 }
 
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
-        loggedIn: false
+        loggedIn: false,
+        hasError: null
     });
     const history = useHistory();
 
@@ -30,25 +33,43 @@ function AuthContextProvider(props) {
             case AuthActionType.GET_LOGGED_IN: {
                 return setAuth({
                     user: payload.user,
-                    loggedIn: payload.loggedIn
+                    loggedIn: payload.loggedIn,
+                    hasError: null
                 });
             }
             case AuthActionType.REGISTER_USER: {
                 return setAuth({
                     user: payload.user,
-                    loggedIn: true
+                    loggedIn: true,
+                    hasError: null
                 })
             }
             case AuthActionType.LOGGED_IN: {
                 return setAuth({
                     user: payload.user,
-                    loggedIn: true
+                    loggedIn: true,
+                    hasError: null
                 })
             }
             case AuthActionType.LOGGED_OUT: {
                 return setAuth({
                     user: null,
-                    loggedIn: false
+                    loggedIn: false,
+                    hasError: null
+                })
+            }
+            case AuthActionType.ERROR_MODAL: {
+                return setAuth({
+                    user: payload.user,
+                    loggedIn: payload.loggedIn,
+                    error: payload.hasError
+                })
+            }
+            case AuthActionType.CLOSE_MODAL: {
+                return setAuth({
+                    user: auth.user,
+                    loggedIn: auth.loggedIn,
+                    hasError: null
                 })
             }
             default:
@@ -70,6 +91,7 @@ function AuthContextProvider(props) {
     }
 
     auth.registerUser = async function(userData, store) {
+        try {
         const response = await api.registerUser(userData);      
         if (response.status === 200) {
             authReducer({
@@ -81,7 +103,16 @@ function AuthContextProvider(props) {
             history.push("/");
             store.loadIdNamePairs();
         }
+    } catch (errorMsg) {
+        authReducer({
+            type: AuthActionType.ERROR_MODAL,
+            payload: {              
+                error: errorMsg.response.data.errorMessage
+            }
+        })
     }
+}
+
     auth.logoutUser = async function () {
         const response = await api.logoutUser();
         if (response.status === 200) {
@@ -93,18 +124,34 @@ function AuthContextProvider(props) {
         }
 
     }
+
     auth.loginUser = async function(userData, store) {
-        const response = await api.loginUser(userData);
-        if (response.status === 200) {
+        try {
+            const response = await api.loginUser(userData);
+            if (response.status === 200) {
+                authReducer({
+                    type: AuthActionType.LOGGED_IN,
+                    payload: {
+                        user: response.data.user
+                    }
+                })
+                history.push("/");
+                store.loadIdNamePairs();
+            }
+        } catch (errorMsg) {
             authReducer({
-                type: AuthActionType.LOGGED_IN,
+                type: AuthActionType.ERROR_MODAL,
                 payload: {
-                    user: response.data.user
+                    error: errorMsg.response.data.errorMessage
                 }
             })
         }
-        history.push("/");
-        store.loadIdNamePairs();
+    }
+    auth.closeModal = function() {
+        authReducer({
+            type: AuthActionType.CLOSE_MODAL,
+            payload: null
+        })
     }
 
     return (

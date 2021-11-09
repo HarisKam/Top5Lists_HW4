@@ -1,6 +1,7 @@
 const auth = require('../auth')
 const User = require('../models/user-model')
 const bcrypt = require('bcryptjs')
+const { logoutUser } = require('../../client/src/api')
 
 getLoggedIn = async (req, res) => {
     auth.verify(req, res, async function () {
@@ -116,8 +117,21 @@ loginUser = async (req, res) => {
     }
 }
 
+logoutUser = async (req, res) => {
+    try {
+        await res.cookie("token", "", {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        }).status(200).send();
+    } catch(error) {
+        res.status(500).send();
+    }
+}
+
 module.exports = {
     getLoggedIn,
     registerUser,
-    loginUser
+    loginUser,
+    logoutUser
 }
