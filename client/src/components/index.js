@@ -8,6 +8,7 @@ import LoginScreen from './LoginScreen'
 import SplashScreen from './SplashScreen'
 import Statusbar from './Statusbar'
 import Top5Item from './Top5Item'
+
 import WorkspaceScreen from './WorkspaceScreen'
 /*
     This serves as a module so that we can import
@@ -25,5 +26,6 @@ export {
     LoginScreen,
     SplashScreen,
     Statusbar, 
-    Top5Item, 
+    Top5Item,
+ 
     WorkspaceScreen }

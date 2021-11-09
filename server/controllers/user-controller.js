@@ -1,7 +1,6 @@
 const auth = require('../auth')
 const User = require('../models/user-model')
 const bcrypt = require('bcryptjs')
-const { logoutUser } = require('../../client/src/api')
 
 getLoggedIn = async (req, res) => {
     auth.verify(req, res, async function () {
@@ -108,12 +107,11 @@ loginUser = async (req, res) => {
                 lastName: existingUser.lastName,
                 email: existingUser.email
             }
-        }).send();
-
+        }).send();  
     } 
     catch (err) {
         console.log(err);
-        res.status(500).send;
+        res.status(500).send();
     }
 }
 
