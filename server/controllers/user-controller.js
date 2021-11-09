@@ -108,7 +108,7 @@ loginUser = async (req, res) => {
                 email: existingUser.email
             }
         }).send();
-        
+
     } 
     catch (err) {
         console.log(err);

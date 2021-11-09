@@ -9,7 +9,8 @@ console.log("create AuthContext: " + AuthContext);
 export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     REGISTER_USER: "REGISTER_USER",
-    LOGIN_USER: "LOGIN_USER"
+    LOGGED_IN: "LOGGED_IN",
+    LOGGED_OUT: "LOGGED_OUT"
 }
 
 function AuthContextProvider(props) {
@@ -38,10 +39,16 @@ function AuthContextProvider(props) {
                     loggedIn: true
                 })
             }
-            case AuthActionType.LOGIN_USER: {
+            case AuthActionType.LOGGED_IN: {
                 return setAuth({
                     user: payload.user,
                     loggedIn: true
+                })
+            }
+            case AuthActionType.LOGGED_OUT: {
+                return setAuth({
+                    user: null,
+                    loggedIn: false
                 })
             }
             default:
@@ -53,7 +60,7 @@ function AuthContextProvider(props) {
         const response = await api.getLoggedIn();
         if (response.status === 200) {
             authReducer({
-                type: AuthActionType.SET_LOGGED_IN,
+                type: AuthActionType.GET_LOGGED_IN,
                 payload: {
                     loggedIn: response.data.loggedIn,
                     user: response.data.user
@@ -75,12 +82,22 @@ function AuthContextProvider(props) {
             store.loadIdNamePairs();
         }
     }
+    auth.logoutUser = async function () {
+        const response = await api.logoutUser();
+        if (response.status === 200) {
+            authReducer({
+                type: AuthActionType.LOGGED_OUT,
+                payload: null
+            })
+            history.push("/");
+        }
 
+    }
     auth.loginUser = async function(userData, store) {
         const response = await api.loginUser(userData);
         if (response.status === 200) {
             authReducer({
-                type: AuthActionType.LOGIN_USER,
+                type: AuthActionType.LOGGED_IN,
                 payload: {
                     user: response.data.user
                 }

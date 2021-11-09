@@ -79,8 +79,9 @@ export default function AppBanner() {
             editToolbar = <EditToolbar />;
         }
     }
-    
+
     function getAccountMenu(loggedIn) {
+        if (loggedIn) { return auth.user.firstName.at(0) + auth.user.lastName.at(0);}
         return <AccountCircle />;
     }
 
