@@ -80,39 +80,39 @@ registerUser = async (req, res) => {
 
 loginUser = async (req, res) => {
     try {
-        const { email, password} = req.body;
+        const { email, password } = req.body;
         if (!email || !password) {
-            return res
-                .status(400)
-                .json({ errorMessage: "Please enter all required fields." });
+            return res.status(401).json({errorMessage: "Please enter a username and password"});
         }
-        const existingUser = await User.findOne({ email: email });
-        if (existingUser) {
-            return res
-                .status(400)
-                .json({
-                    success: false,
-                    errorMessage: "An account with this email address already exists."
-                })
+
+        const existingUser = await User.findOne({email: email});
+        if (!existingUser) {
+            return res.status(400).json({errorMessage: "There is no account with this email"});
         }
-        if (d_res) {
-            const token = auth.signToken(existingUser); 
-            res.cookie("token", token, {
-                httpOnly: true, 
-                secure: true,
-                sameSite: "none"
-            }).status(200).json({
-                success: true, 
-                user: {
-                    firstName: existingUser.firstName, 
-                    lastName: existingUser.lastName, 
-                    email: existingUser.email
-                }
-            }).send();           
+
+        const passVerify = await bcrypt.compare(password, existingUser.passwordHash)
+        if (!passVerify) {
+            return res.status(400).json({errorMessage: "Wrong password"});
         }
-    }
-    catch(err){
-        res.status(500).send();
+
+        const token = auth.signToken(existingUser);
+        await res.cookie("token", token, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none"
+        }).status(200).json({
+            success: true,
+            user: {
+                firstName: existingUser.firstName,
+                lastName: existingUser.lastName,
+                email: existingUser.email
+            }
+        }).send();
+        
+    } 
+    catch (err) {
+        console.log(err);
+        res.status(500).send;
     }
 }
 
